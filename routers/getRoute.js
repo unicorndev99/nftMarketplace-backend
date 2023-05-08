@@ -47,10 +47,7 @@ route.post('/getNFTsWithAccount', async(req, res) => {
     let historyData = await nftHistory.find({newWalletAddress: req.body.walletAddress, walletType: req.body.walletType})
 
     if (nftListData && historyData) 
-        return res.status(200).send({
-            nftData: nftListData,
-            historyData
-        });
+        return res.status(200).send({nftData: nftListData, historyData});
     return res
         .status(400)
         .send("error");
@@ -58,7 +55,7 @@ route.post('/getNFTsWithAccount', async(req, res) => {
 
 route.post('/getSaleNFTs', async(req, res) => {
     console.log("getSaleNFTs", req.body)
-    let saleListData = await nftData.find({mintStatus : "forsale"})
+    let saleListData = await nftData.find({mintStatus: "forsale"})
 
     if (saleListData) 
         return res.status(200).send(saleListData);
@@ -69,7 +66,7 @@ route.post('/getSaleNFTs', async(req, res) => {
 
 route.post('/getBoughtHistoryData', async(req, res) => {
     console.log("getBoughtHistoryData", req.body)
-    let boughtHistoryData = await nftHistory.find({status : "bought", walletType : req.body.mintedWalletType, nftID : req.body.nftID})
+    let boughtHistoryData = await nftHistory.find({status: "bought", walletType: req.body.mintedWalletType, nftID: req.body.nftID})
 
     if (boughtHistoryData) 
         return res.status(200).send(boughtHistoryData);
@@ -107,6 +104,17 @@ route.post('/sellRegisteNFT', async(req, res) => {
         .send("error");
 });
 
+route.post('/getNFTInfoById', async(req, res) => {
+    console.log("getNFTInfoById", req.body) // nftID, chainId
+    let nftDetailData = await nftData.find({walletType: "metamask", nftID: req.body.nftID})
+
+    if (nftDetailData) 
+        return res.status(200).send(nftDetailData);
+    return res
+        .status(400)
+        .send("error");
+});
+
 route.post('/saveBoughtNFT', async(req, res) => {
     console.log("saveBoughtNFT", req.body)
     let currentDate = getCurrentDate();
@@ -114,7 +122,7 @@ route.post('/saveBoughtNFT', async(req, res) => {
         buyPrice: req.body.salePrice,
         mintStatus: "bought",
         mintedWalletAddress: req.body.newOwner,
-        buyCompletionTime : currentDate
+        buyCompletionTime: currentDate
     });
 
     if (updateData) {
@@ -131,7 +139,7 @@ route.post('/saveBoughtNFT', async(req, res) => {
             TxID: req.body.txHash,
             nftID: updateData.tokenID
         });
-    
+
         var boughtHistoryData = await boughtData.save();
 
         var soldData = nftHistory({
@@ -147,13 +155,16 @@ route.post('/saveBoughtNFT', async(req, res) => {
             TxID: req.body.txHash,
             nftID: updateData.tokenID
         });
-    
+
         var soldHistoryData = await soldData.save();
-    
+
         if (soldHistoryData && boughtHistoryData) 
             return res.status(200).send(boughtHistoryData);
-        else return res.status(400).send("error");
-    }
+        else 
+            return res
+                .status(400)
+                .send("error");
+        }
     return res
         .status(400)
         .send("error");
