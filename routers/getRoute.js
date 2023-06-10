@@ -172,9 +172,14 @@ route.post('/saveBoughtNFT', async(req, res) => {
 
 route.post('/stopSaleNFT', async(req, res) => {
     console.log("stopSaleNFT", req.body)
+    let originNFT = await nftData.findById(req.body.dbID)
+    let mintStatus;
+    if(originNFT.buyPrice > 0) mintStatus = "bought"
+    else mintStatus = "minted"
+    
     let updateData = await nftData.findByIdAndUpdate(req.body.dbID, {
         salePrice: 0,
-        mintStatus: "minted"
+        mintStatus: mintStatus
     }, {new: true});
 
     if (updateData) 
